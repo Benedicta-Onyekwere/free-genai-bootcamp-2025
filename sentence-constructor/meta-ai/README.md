@@ -1,3 +1,2 @@
-Tried using Meta-ai , but it did not work due to my location i got the following error below;
+#### Tried using Meta-ai , but it did not work due to my location i got the following error as shown in the screenshot.
 
-![Screenshot](sentence-constructor/meta-ai/screenshot.png)
