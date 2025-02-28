@@ -44,7 +44,7 @@ Here is an example of simple sentence structures.
 - I saw the raven because it was loud. → [Time] [Subject] [Object] [Verb] [Reason] [Subject] [Verb].
 
 ### Clues and Considerations
-- try and provide a non-nested bulleted list
+- try and provide a non-nested bulleted list.
 - talk about the vocabulary but try to leave out the japanese words because the student can refer to the vocabulary table.
 
 <example>
