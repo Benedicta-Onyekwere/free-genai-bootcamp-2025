@@ -53,7 +53,7 @@ However, if you want to emphasize that it is a specific theory, you might consid
 It then asked me to translate another sentence as instructed in the prompt when i get the correct spanish translation.
  
 
-## Deepseek R-1 Prommpt Observation
+## Deepseek R-1 Prompt Observation
 
 Using the same prompt instructions for this model, the model was quite interesting and facinating and very different from all the other models because it thinks out loud, in the sense that it keeps writing how its reasoning before giving its final answer this is shown below:
 
@@ -182,7 +182,7 @@ The assistant's role is to guide the student through each step, providing only t
 - The main clause’s auxiliary verb is in the conditional form.
 
 
-## OpenAI's o3-mini 
+## OpenAI's o3-mini Prompt Observation
 This model worked same as perplexity, giving brief and straight to the point answer. this is shown below:
 
 Here is your challenge sentence in English:
