@@ -183,7 +183,8 @@ The assistant's role is to guide the student through each step, providing only t
 
 
 ## OpenAI's o3-mini Prompt Observation
-This model worked same as perplexity, giving brief and straight to the point answer. this is shown below:
+This model worked same as perplexity, giving brief and straight to the point answer. 
+This is shown below:
 
 Here is your challenge sentence in English:
 
