@@ -64,8 +64,8 @@ This project is a backend server for a language learning portal, built using Go.
    - Verified database interactions and ensured correct API responses.
    - Here are some example `curl` commands and their outputs:
  
- ![Curl Commands Output](assets/Curl-commands.png)
-
+ ![Curl Commands Output](../assets/Curl-command.png)
+ 
 ### Running the Server
 
 1. **Install Dependencies:**
