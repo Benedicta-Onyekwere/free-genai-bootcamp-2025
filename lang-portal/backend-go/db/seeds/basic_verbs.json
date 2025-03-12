@@ -1,0 +1,30 @@
+{
+  "group_name": "Basic Verbs",
+  "words": [
+    {
+      "japanese": "食べる",
+      "romaji": "taberu",
+      "english": "to eat"
+    },
+    {
+      "japanese": "飲む",
+      "romaji": "nomu",
+      "english": "to drink"
+    },
+    {
+      "japanese": "行く",
+      "romaji": "iku",
+      "english": "to go"
+    },
+    {
+      "japanese": "見る",
+      "romaji": "miru",
+      "english": "to see"
+    },
+    {
+      "japanese": "来る",
+      "romaji": "kuru",
+      "english": "to come"
+    }
+  ]
+} 

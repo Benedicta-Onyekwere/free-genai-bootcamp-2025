@@ -1,0 +1,15 @@
+{
+  "group_name": "Common Words",
+  "words": [
+    {
+      "japanese": "こんにちは",
+      "romaji": "konnichiwa",
+      "english": "hello"
+    },
+    {
+      "japanese": "ありがとう",
+      "romaji": "arigatou",
+      "english": "thank you"
+    }
+  ]
+} 

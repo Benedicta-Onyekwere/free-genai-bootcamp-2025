@@ -1,0 +1,15 @@
+{
+  "group_name": "Basic Greetings",
+  "words": [
+    {
+      "japanese": "おはよう",
+      "romaji": "ohayou",
+      "english": "good morning"
+    },
+    {
+      "japanese": "こんばんは",
+      "romaji": "konbanwa",
+      "english": "good evening"
+    }
+  ]
+} 

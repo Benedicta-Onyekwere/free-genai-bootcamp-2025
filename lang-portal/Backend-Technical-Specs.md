@@ -1,4 +1,4 @@
-# Backend Server Technical Specs
+# Backend Server Technical Specifications
 
 ## Business Goal:
 
@@ -12,7 +12,7 @@ A language learning school wants to build a prototype of learning portal which w
 - The backend will be built using Go
 - The database will be SQLite3
 - The API will be built using Gin
--Mage is a task runner for Go.
+- Mage is a task runner for Go.
 - The API will always return JSON
 - There will no authentication or authorization
 - Everything be treated as a single user
@@ -42,10 +42,9 @@ Our database will be a single sqlite database called `words.db` that will be in 
 We have the following tables:
 - words - stored vocabulary words
   - id integer
-  - japasese string
+  - japanese string
   - romaji string
   - english string
-  - parts json
 - words_groups - join table for words and groups many-to-many
   - id integer
   - word_id integer
