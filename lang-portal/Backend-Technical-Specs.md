@@ -42,9 +42,10 @@ Our database will be a single sqlite database called `words.db` that will be in 
 We have the following tables:
 - words - stored vocabulary words
   - id integer
-  - japanese string
+  - japasese string
   - romaji string
   - english string
+  - parts json
 - words_groups - join table for words and groups many-to-many
   - id integer
   - word_id integer
