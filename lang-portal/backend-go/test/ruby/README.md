@@ -302,7 +302,7 @@ Language Portal API
 17 examples, 0 failures
 Finished in 0.03474 seconds
 ```
-![Test Suite Results](../../assets/rspec_results.png)
+![Test Suite Results](../../../assets/rspec_results.png)
 *Screenshot showing successful execution of all API endpoint tests*
 
 ## Directory Structure
