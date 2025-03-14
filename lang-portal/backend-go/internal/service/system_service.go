@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 )
 
 // SystemService handles system-wide operations
@@ -58,6 +59,9 @@ func (s *SystemService) FullReset() error {
 		return fmt.Errorf("failed to read migration files: %v", err)
 	}
 
+	// Sort migration files by name to ensure correct order
+	sort.Strings(files)
+
 	// Create new database connection
 	s.db, err = InitDB(dbPath)
 	if err != nil {
@@ -74,6 +78,16 @@ func (s *SystemService) FullReset() error {
 		if _, err := s.db.Exec(string(content)); err != nil {
 			return fmt.Errorf("failed to execute migration %s: %v", file, err)
 		}
+	}
+
+	// Run seed file
+	seedContent, err := os.ReadFile("db/seed.sql")
+	if err != nil {
+		return fmt.Errorf("failed to read seed file: %v", err)
+	}
+
+	if _, err := s.db.Exec(string(seedContent)); err != nil {
+		return fmt.Errorf("failed to execute seed file: %v", err)
 	}
 
 	return nil

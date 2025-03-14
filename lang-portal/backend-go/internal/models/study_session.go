@@ -34,19 +34,18 @@ func GetStudySessions(db *sql.DB, page, perPage int) ([]StudySessionDetail, int,
 		return nil, 0, err
 	}
 
-	// Get study sessions with details
+	// Get study sessions with details - simplified query
 	query := `
 		SELECT 
 			ss.id,
-			'Vocabulary Quiz' as activity_name,
-			g.name as group_name,
+			COALESCE(sa.name, 'Unknown Activity') as activity_name,
+			COALESCE(g.name, 'Unknown Group') as group_name,
 			ss.created_at as start_time,
-			COALESCE(MAX(wri.created_at), ss.created_at) as end_time,
-			COUNT(wri.id) as review_items_count
+			ss.created_at as end_time,
+			0 as review_items_count
 		FROM study_sessions ss
-		JOIN groups g ON ss.group_id = g.id
-		LEFT JOIN word_review_items wri ON ss.id = wri.study_session_id
-		GROUP BY ss.id
+		LEFT JOIN groups g ON ss.group_id = g.id
+		LEFT JOIN study_activities sa ON ss.study_activity_id = sa.id
 		ORDER BY ss.created_at DESC
 		LIMIT ? OFFSET ?
 	`
@@ -67,6 +66,18 @@ func GetStudySessions(db *sql.DB, page, perPage int) ([]StudySessionDetail, int,
 		if err != nil {
 			return nil, 0, err
 		}
+
+		// Get review count in a separate query
+		err = db.QueryRow(`
+			SELECT COUNT(*) 
+			FROM word_review_items 
+			WHERE study_session_id = ?
+		`, s.ID).Scan(&s.ReviewItemsCount)
+		if err != nil {
+			// Don't fail if we can't get review count
+			s.ReviewItemsCount = 0
+		}
+
 		sessions = append(sessions, s)
 	}
 
@@ -75,28 +86,53 @@ func GetStudySessions(db *sql.DB, page, perPage int) ([]StudySessionDetail, int,
 
 // GetStudySessionByID retrieves a single study session by its ID
 func GetStudySessionByID(db *sql.DB, id int) (*StudySessionDetail, error) {
+	// First check if session exists
+	var exists bool
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM study_sessions WHERE id = ?)", id).Scan(&exists)
+	if err != nil {
+		return nil, err
+	}
+	if !exists {
+		return nil, sql.ErrNoRows
+	}
+
+	// Get session details
 	query := `
 		SELECT 
 			ss.id,
-			'Vocabulary Quiz' as activity_name,
-			g.name as group_name,
+			COALESCE(sa.name, 'Unknown Activity') as activity_name,
+			COALESCE(g.name, 'Unknown Group') as group_name,
 			ss.created_at as start_time,
-			COALESCE(MAX(wri.created_at), ss.created_at) as end_time,
-			COUNT(wri.id) as review_items_count
+			ss.created_at as end_time,
+			0 as review_items_count
 		FROM study_sessions ss
-		JOIN groups g ON ss.group_id = g.id
-		LEFT JOIN word_review_items wri ON ss.id = wri.study_session_id
+		LEFT JOIN groups g ON ss.group_id = g.id
+		LEFT JOIN study_activities sa ON ss.study_activity_id = sa.id
 		WHERE ss.id = ?
-		GROUP BY ss.id
 	`
 
 	var s StudySessionDetail
-	err := db.QueryRow(query, id).Scan(
-		&s.ID, &s.ActivityName, &s.GroupName,
-		&s.StartTime, &s.EndTime, &s.ReviewItemsCount,
+	err = db.QueryRow(query, id).Scan(
+		&s.ID,
+		&s.ActivityName,
+		&s.GroupName,
+		&s.StartTime,
+		&s.EndTime,
+		&s.ReviewItemsCount,
 	)
 	if err != nil {
 		return nil, err
+	}
+
+	// Get review count in a separate query
+	err = db.QueryRow(`
+		SELECT COUNT(*) 
+		FROM word_review_items 
+		WHERE study_session_id = ?
+	`, id).Scan(&s.ReviewItemsCount)
+	if err != nil {
+		// Don't fail if we can't get review count
+		s.ReviewItemsCount = 0
 	}
 
 	return &s, nil
@@ -185,13 +221,23 @@ func AddWordReview(db *sql.DB, sessionID, wordID int, correct bool) error {
 	return err
 }
 
-// Define the GetStudySessionsByGroup function
+// GetStudySessionsByGroup retrieves study sessions for a specific group
 func GetStudySessionsByGroup(db *sql.DB, groupID, page, perPage int) ([]StudySessionDetail, int, error) {
 	offset := (page - 1) * perPage
 
+	// First check if group exists
+	var exists bool
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM groups WHERE id = ?)", groupID).Scan(&exists)
+	if err != nil {
+		return nil, 0, err
+	}
+	if !exists {
+		return nil, 0, sql.ErrNoRows
+	}
+
 	// Get total count
 	var total int
-	err := db.QueryRow(`
+	err = db.QueryRow(`
 		SELECT COUNT(*)
 		FROM study_sessions
 		WHERE group_id = ?
@@ -204,16 +250,15 @@ func GetStudySessionsByGroup(db *sql.DB, groupID, page, perPage int) ([]StudySes
 	query := `
 		SELECT 
 			ss.id,
-			'Vocabulary Quiz' as activity_name,
-			g.name as group_name,
+			COALESCE(sa.name, 'Unknown Activity') as activity_name,
+			COALESCE(g.name, 'Unknown Group') as group_name,
 			ss.created_at as start_time,
-			COALESCE(MAX(wri.created_at), ss.created_at) as end_time,
-			COUNT(wri.id) as review_items_count
+			ss.created_at as end_time,
+			0 as review_items_count
 		FROM study_sessions ss
-		JOIN groups g ON ss.group_id = g.id
-		LEFT JOIN word_review_items wri ON ss.id = wri.study_session_id
+		LEFT JOIN groups g ON ss.group_id = g.id
+		LEFT JOIN study_activities sa ON ss.study_activity_id = sa.id
 		WHERE ss.group_id = ?
-		GROUP BY ss.id
 		ORDER BY ss.created_at DESC
 		LIMIT ? OFFSET ?
 	`
@@ -228,13 +273,33 @@ func GetStudySessionsByGroup(db *sql.DB, groupID, page, perPage int) ([]StudySes
 	for rows.Next() {
 		var s StudySessionDetail
 		err := rows.Scan(
-			&s.ID, &s.ActivityName, &s.GroupName,
-			&s.StartTime, &s.EndTime, &s.ReviewItemsCount,
+			&s.ID,
+			&s.ActivityName,
+			&s.GroupName,
+			&s.StartTime,
+			&s.EndTime,
+			&s.ReviewItemsCount,
 		)
 		if err != nil {
 			return nil, 0, err
 		}
+
+		// Get review count in a separate query
+		err = db.QueryRow(`
+			SELECT COUNT(*) 
+			FROM word_review_items 
+			WHERE study_session_id = ?
+		`, s.ID).Scan(&s.ReviewItemsCount)
+		if err != nil {
+			// Don't fail if we can't get review count
+			s.ReviewItemsCount = 0
+		}
+
 		sessions = append(sessions, s)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, 0, err
 	}
 
 	return sessions, total, nil

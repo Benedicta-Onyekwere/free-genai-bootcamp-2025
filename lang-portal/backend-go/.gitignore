@@ -24,6 +24,8 @@
 *.log
 
 # Database
+*.db
+db/*.db
 words.db
 
 # Environment variables

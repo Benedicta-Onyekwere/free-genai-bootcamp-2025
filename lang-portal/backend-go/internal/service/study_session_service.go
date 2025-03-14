@@ -37,4 +37,9 @@ func (s *StudySessionService) CreateStudySession(groupID, activityID int) (inter
 // AddWordReview adds a word review to a study session
 func (s *StudySessionService) AddWordReview(sessionID, wordID int, correct bool) error {
 	return models.AddWordReview(s.db, sessionID, wordID, correct)
+}
+
+// GetStudySessionsByGroup retrieves study sessions for a specific group
+func (s *StudySessionService) GetStudySessionsByGroup(groupID, page, perPage int) (interface{}, int, error) {
+	return models.GetStudySessionsByGroup(s.db, groupID, page, perPage)
 } 

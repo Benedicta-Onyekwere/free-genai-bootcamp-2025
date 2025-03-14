@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"log"
+	"os"
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
 	"lang-portal/backend-go/internal/handlers"
@@ -10,6 +11,17 @@ import (
 )
 
 func main() {
+	// Set up logging
+	logFile, err := os.OpenFile("server.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatal("Failed to open log file:", err)
+	}
+	defer logFile.Close()
+
+	// Set up multi-writer for both file and console
+	log.SetOutput(logFile)
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+
 	// Open database connection
 	db, err := sql.Open("sqlite3", "./words.db")
 	if err != nil {
@@ -40,6 +52,7 @@ func main() {
 
 		// Error handling
 		if len(c.Errors) > 0 {
+			log.Printf("Error in request: %v", c.Errors.JSON())
 			c.JSON(-1, gin.H{"errors": c.Errors.JSON()})
 		}
 	})
@@ -68,8 +81,16 @@ func main() {
 	}
 
 	// Start the server
-	log.Println("Starting server on :8080")
-	if err := r.Run(":8080"); err != nil {
-		log.Fatal("Failed to start server:", err)
+	port := os.Getenv("PORT")
+	log.Printf("Raw PORT environment variable: %q", os.Getenv("PORT"))
+	if port == "" {
+		port = "8082"
+		log.Printf("No PORT environment variable found, using default: %s", port)
+	} else {
+		log.Printf("Using PORT from environment: %s", port)
+	}
+	log.Printf("Final port configuration: %s", port)
+	if err := r.Run(":" + port); err != nil {
+		log.Fatalf("Failed to start server: %v", err)
 	}
 } 

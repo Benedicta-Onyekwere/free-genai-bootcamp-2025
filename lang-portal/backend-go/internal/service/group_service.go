@@ -27,4 +27,4 @@ func (s *GroupService) GetGroupByID(id int) (interface{}, error) {
 // GetGroupWords retrieves words for a specific group
 func (s *GroupService) GetGroupWords(groupID, page, perPage int) (interface{}, int, error) {
 	return models.GetGroupWords(s.db, groupID, page, perPage)
-} 
+}

@@ -1,9 +1,5 @@
 package service
 
-import (
-	"database/sql"
-)
-
 // Service represents the interface for all business operations
 type Service interface {
 	// Word operations
@@ -21,6 +17,7 @@ type Service interface {
 	GetStudySessionWords(sessionID, page, perPage int) (interface{}, int, error)
 	CreateStudySession(groupID, activityID int) (interface{}, error)
 	AddWordReview(sessionID, wordID int, correct bool) error
+	GetStudySessionsByGroup(groupID, page, perPage int) (interface{}, int, error)
 	
 	// Dashboard operations
 	GetLastStudySession() (interface{}, error)
@@ -30,14 +27,4 @@ type Service interface {
 	// System operations
 	ResetHistory() error
 	FullReset() error
-}
-
-// BaseService provides common functionality for all services
-type BaseService struct {
-	db *sql.DB
-}
-
-// NewBaseService creates a new base service
-func NewBaseService(db *sql.DB) *BaseService {
-	return &BaseService{db: db}
 } 

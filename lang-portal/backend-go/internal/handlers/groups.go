@@ -118,6 +118,12 @@ func (h *GroupsHandler) ListGroupWords(c *gin.Context) {
 
 // ListGroupStudySessions handles GET /api/groups/:id/study_sessions
 func (h *GroupsHandler) ListGroupStudySessions(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid group ID"})
+		return
+	}
+
 	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
 	if err != nil || page < 1 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page number"})
@@ -126,7 +132,8 @@ func (h *GroupsHandler) ListGroupStudySessions(c *gin.Context) {
 
 	perPage := 100 // As per specification
 
-	sessions, total, err := h.service.GetStudySessions(page, perPage)
+	// Explicitly use StudySessionService to avoid ambiguity
+	sessions, total, err := h.service.StudySessionService.GetStudySessionsByGroup(id, page, perPage)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

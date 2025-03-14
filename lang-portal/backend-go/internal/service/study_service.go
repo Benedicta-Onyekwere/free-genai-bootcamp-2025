@@ -67,9 +67,4 @@ func (s *StudyService) GetStudyStats() (*models.QuickStats, error) {
 // GetLastStudySession retrieves the most recent study session
 func (s *StudyService) GetLastStudySession() (*models.LastStudySession, error) {
 	return models.GetLastStudySession(s.db)
-}
-
-// GetStudySessionsByGroup retrieves study sessions for a specific group
-func (s *StudyService) GetStudySessionsByGroup(groupID, page, perPage int) ([]models.StudySessionDetail, int, error) {
-	return models.GetStudySessionsByGroup(s.db, groupID, page, perPage)
 } 
