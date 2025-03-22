@@ -46,10 +46,10 @@ This internal tool addresses these needs by:
 
 ## Example Output
 
-![Generated Vocabulary](../free-genai-bootcamp-2025/lang-portal/assets/vocab-gen-output.png)
+![Generated Vocabulary](../lang-portal/assets/vocab-gen-output.png)
 *Example of generated vocabulary showing detailed word breakdowns with kanji, romaji, and syllable components*
 
-![Technology Vocabulary](../free-genai-bootcamp-2025/lang-portal/assets/tech-vocab-output.png)
+![Technology Vocabulary](../lang-portal/assets/tech-vocab-output.png)
 *Example of technology-related vocabulary showing mixed usage of kanji (電話), hiragana (でんわ), and katakana (コンピュータ)*
 
 ## Development Process
