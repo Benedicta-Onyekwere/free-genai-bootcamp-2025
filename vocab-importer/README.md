@@ -34,6 +34,31 @@ This internal tool addresses these needs by:
 - **LLM Integration**: OpenAI's GPT-3.5 API (managed LLM solution)
 - **Data Format**: JSON for easy import/export compatibility
 
+### Backend API Implementation
+The vocabulary data is persisted using a Go-based REST API:
+- **Language**: Go 1.21
+- **Framework**: Gin for HTTP routing
+- **Database**: PostgreSQL with GORM ORM
+- **Testing**: RSpec for API endpoint testing
+- **Documentation**: OpenAPI/Swagger specification
+
+Key Implementation Steps:
+1. Wrote technical specifications for the API endpoints and data models
+2. Implemented CRUD operations for vocabulary words and groups
+3. Added validation middleware for JSON payloads
+4. Set up PostgreSQL database with GORM migrations
+5. Created comprehensive test suite using RSpec
+6. Documented API using OpenAPI/Swagger
+7. Containerized the application using Docker
+8. Set up CI/CD pipeline for automated testing and deployment
+
+The API supports:
+- Creating and managing vocabulary lists
+- Batch import/export of vocabulary words
+- Filtering words by JLPT level and topics
+- User authentication and authorization
+- Rate limiting and request validation
+
 ## Features
 
 - Generate Japanese vocabulary words based on topics and JLPT levels

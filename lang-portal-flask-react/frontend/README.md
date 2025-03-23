@@ -1,9 +1,15 @@
-# React + TypeScript + Vite
+# Frontend Implementation: Japanese Language Learning Portal
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Welcome to the Japanese Language Learning Portal, a modern web application designed to enhance the Japanese learning experience. This interactive platform facilitates vocabulary acquisition, study tracking, and progress monitoring for Japanese language learners. With features like word grouping, session management, and real-time progress tracking, learners can systematically build their Japanese vocabulary while maintaining an organized study routine.
+
+## React + TypeScript + Vite
+
+This project leverages a powerful modern tech stack:
+- **React**: For building a dynamic and responsive user interface
+- **TypeScript**: Ensuring type safety and better developer experience
+- **Vite**: Providing lightning-fast build tooling and development server
 
 Currently, two official plugins are available:
-
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
 - [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
@@ -14,15 +20,11 @@ If you are developing a production application, we recommend updating the config
 ```js
 export default tseslint.config({
   extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
     ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
     ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
     ...tseslint.configs.stylisticTypeChecked,
   ],
   languageOptions: {
-    // other options...
     parserOptions: {
       project: ['./tsconfig.node.json', './tsconfig.app.json'],
       tsconfigRootDir: import.meta.dirname,
@@ -40,13 +42,10 @@ import reactDom from 'eslint-plugin-react-dom'
 
 export default tseslint.config({
   plugins: {
-    // Add the react-x and react-dom plugins
     'react-x': reactX,
     'react-dom': reactDom,
   },
   rules: {
-    // other rules...
-    // Enable its recommended typescript rules
     ...reactX.configs['recommended-typescript'].rules,
     ...reactDom.configs.recommended.rules,
   },
@@ -154,3 +153,98 @@ User preferences and system configuration interface.
   - Corrected Tailwind configuration
   - Updated theme setup
   - Added missing class definitions
+
+## Frontend-Backend Integration
+
+### 1. API Client Setup and Configuration
+- Installed and configured Axios for API communication:
+  ```typescript
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8082/api';
+  export const api = axios.create({
+    baseURL: API_URL,
+    headers: { 'Content-Type': 'application/json' },
+  });
+  ```
+- Set up environment variables for different deployment environments
+- Implemented API interceptors for request/response handling
+
+### 2. State Management Implementation
+- Integrated TanStack Query (React Query) for server state:
+  ```typescript
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 1000 * 60 * 5, // Cache valid for 5 minutes
+        retry: 1,
+        refetchOnWindowFocus: true,
+      },
+    },
+  });
+  ```
+- Created custom hooks for data fetching:
+  ```typescript
+  export const useVocabularyList = () => {
+    return useQuery({
+      queryKey: ['vocabulary'],
+      queryFn: () => api.get('/words'),
+    });
+  };
+  ```
+
+### 3. Type Safety and Data Validation
+- Created TypeScript interfaces matching backend models:
+  ```typescript
+  interface VocabularyWord {
+    id: number;
+    japanese: string;
+    romaji: string;
+    english: string;
+    parts: WordPart[];
+  }
+  ```
+- Implemented Zod schemas for runtime validation:
+  ```typescript
+  const wordSchema = z.object({
+    japanese: z.string(),
+    romaji: z.string(),
+    english: z.string(),
+    parts: z.array(wordPartSchema),
+  });
+  ```
+
+### 4. Real-time Features
+- Implemented optimistic updates for better UX
+- Added automatic revalidation on data changes
+- Set up WebSocket connection for real-time updates:
+  ```typescript
+  const socket = new WebSocket('ws://localhost:8082/ws');
+  socket.onmessage = (event) => {
+    queryClient.invalidateQueries({ queryKey: ['vocabulary'] });
+  };
+  ```
+
+### 5. Error Handling and Loading States
+- Created global error boundary for API errors
+- Implemented retry logic for failed requests
+- Added loading skeletons for better UX:
+  ```typescript
+  {isLoading ? <WordCardSkeleton /> : <WordCard word={word} />}
+  ```
+
+### 6. Testing and Verification
+- Unit tested API integration with React Testing Library
+- Verified data flow between frontend and backend
+- Tested error scenarios and edge cases
+- Confirmed real-time updates working correctly
+
+### Integration Results
+
+#### Example API Response
+Below is the dashboard visualization after integrating mock data through the API, displaying the three main components: Quick Stats for overall metrics, Study Sessions timeline, and Study Progress tracking:
+
+![API Output](../../lang-portal/assets/dashboard-output.png)
+
+#### API Testing with Curl
+Here's a demonstration of testing the API endpoints using curl commands, verifying the correct handling of requests and responses:
+
+![Curl Command Test](../../lang-portal/assets/api-test-results.png)
