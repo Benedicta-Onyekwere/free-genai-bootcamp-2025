@@ -1,0 +1,11 @@
+# Core dependencies
+chromadb>=0.4.24
+boto3>=1.34.0
+youtube_transcript_api>=0.6.2
+
+# OpenAI and LangChain dependencies
+openai==1.12.0
+python-dotenv==1.0.1
+langchain>=0.1.9
+langchain-openai==0.0.8
+langchain-community>=0.0.24
