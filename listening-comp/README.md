@@ -90,3 +90,72 @@ listening-comp/
 2. Use the Raw Transcript stage to download YouTube content
 3. Process transcripts in the Structured Data stage to generate section-based questions
 4. Practice with interactive learning features
+
+## JLPT Question Processing Implementation
+
+The app now successfully processes JLPT listening comprehension questions from YouTube transcripts:
+
+### Section Types
+- 問題1: Dialogue-based questions with clear conversation context
+- 問題2: Complex dialogue scenarios with multiple speakers
+- 問題3: Situational response questions
+
+### Processing Features
+- Automatic section detection and categorization
+- Structured output with Introduction, Conversation, Question, and Options
+- Japanese text preservation with proper formatting
+- Question files organized by video ID and section number
+
+### Example Output Structure
+```json
+{
+  "Introduction": "会話の内容について質問します",
+  "Conversation": "男: すみません、郵便局はどこですか\n女: ああ、本屋の隣です",
+  "Question": "男の人はどこに行きますか",
+  "Options": [
+    "郵便局",
+    "本屋",
+    "銀行",
+    "駅"
+  ]
+}
+```
+
+## Implementation Progress
+
+### 1. Initial Setup and Basic Functionality
+- Set up project structure with backend and frontend directories
+- Implemented basic YouTube transcript downloading functionality
+- Created initial Streamlit interface for user interaction
+- Added basic error handling for transcript downloads
+
+### 2. Transcript Processing and Data Structure
+- Enhanced `get_transcript.py` with improved video ID extraction
+- Added Japanese character counting functionality to `structured_data.py`
+- Implemented section-based question extraction (問題1, 問題2, 問題3)
+- Created organized storage structure for processed questions
+
+### 3. Frontend Development
+- Developed structured data visualization components
+- Added error handling and user feedback mechanisms
+- Enhanced transcript display with character counting
+- Improved overall UI/UX for better user interaction
+
+### 4. Audio Implementation
+- Added AWS Polly integration for text-to-speech
+- Created `generated_audio` directory with `.gitkeep`
+- Configured ffmpeg for audio processing
+- Set up error handling for audio generation
+[View Implementation Progress](../lang-portal/assets/implementation_progress.png)
+
+### Current Challenges
+1. Audio file overwrite confirmation in automated processes
+2. Event loop handling in Streamlit for long-running audio tasks
+3. Port configuration and server stability
+4. Proper cleanup of generated audio files
+
+### Next Steps
+1. Implement proper state management for learning sessions
+2. Add question store functionality
+3. Enhance audio generation workflow
+4. Improve error handling for audio processing
