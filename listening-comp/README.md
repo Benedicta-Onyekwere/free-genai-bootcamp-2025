@@ -36,6 +36,35 @@ Guardrails
    - Improved error handling in transcript downloading
    - Added character counting for Japanese text analysis
    - Enhanced video ID extraction with more robust patterns
+   - Removed audio-related features for stability
+
+3. Data Processing:
+   - Successfully processed JLPT format transcripts into structured sections
+   - Implemented section-based question extraction (問題1, 問題2, 問題3)
+   - Stored processed questions in organized section files
+   - Added proper Japanese text handling and formatting
+
+4. Frontend Updates:
+   - Added structured data visualization
+   - Improved error handling and user feedback
+   - Enhanced transcript display with character counting
+   - Streamlined UI for better user experience
+
+## Project Structure
+```
+listening-comp/
+├── backend/
+│   ├── data/
+│   │   └── questions/     # Processed section-based questions
+│   ├── chat.py           # Japanese tutor implementation
+│   ├── get_transcript.py # YouTube transcript handling
+│   ├── structured_data.py # Transcript processing
+│   ├── vector_store.py   # Vector storage implementation
+│   └── requirements.txt
+├── frontend/
+│   └── main.py          # Streamlit interface
+└── README.md
+```
 
 ## Setup Instructions
 1. Create a virtual environment:
@@ -55,3 +84,9 @@ Guardrails
    ```bash
    streamlit run frontend/main.py
    ```
+
+## Usage
+1. Start with the Chat stage to interact with Nova (Japanese tutor)
+2. Use the Raw Transcript stage to download YouTube content
+3. Process transcripts in the Structured Data stage to generate section-based questions
+4. Practice with interactive learning features

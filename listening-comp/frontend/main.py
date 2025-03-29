@@ -311,31 +311,83 @@ def render_interactive_stage():
     """Render the interactive learning stage"""
     st.header("Interactive Learning")
     
+    # Initialize session state for interactive learning
+    if 'selected_topic' not in st.session_state:
+        st.session_state.selected_topic = None
+    if 'current_question' not in st.session_state:
+        st.session_state.current_question = None
+    
     # Practice type selection
     practice_type = st.selectbox(
         "Select Practice Type",
         ["Dialogue Practice", "Vocabulary Quiz", "Listening Exercise"]
     )
     
+    # Topic selection
+    if practice_type == "Dialogue Practice":
+        topic = st.selectbox(
+            "Select Topic",
+            ["Daily Conversations", "Shopping", "Restaurant", "Travel", "School Life"]
+        )
+        
+        # Generate question button
+        if st.button("Generate Question"):
+            with st.spinner("Generating question..."):
+                # Placeholder for question generation logic
+                st.session_state.current_question = {
+                    "scenario": "At a restaurant",
+                    "dialogue": [
+                        {"speaker": "Waiter", "text": "いらっしゃいませ。"},
+                        {"speaker": "Customer", "text": "すみません、メニューをお願いします。"}
+                    ],
+                    "question": "What should you say next?",
+                    "options": [
+                        "ありがとうございます。",
+                        "はい、そうです。",
+                        "お水をください。",
+                        "さようなら。"
+                    ],
+                    "correct": 2
+                }
+    
     col1, col2 = st.columns([2, 1])
     
     with col1:
         st.subheader("Practice Scenario")
-        # Placeholder for scenario
-        st.info("Practice scenario will appear here")
-        
-        # Placeholder for multiple choice
-        options = ["Option 1", "Option 2", "Option 3", "Option 4"]
-        selected = st.radio("Choose your answer:", options)
+        if st.session_state.current_question:
+            st.write("**Scenario:**", st.session_state.current_question["scenario"])
+            st.write("**Dialogue:**")
+            for line in st.session_state.current_question["dialogue"]:
+                st.write(f"{line['speaker']}: {line['text']}")
+            
+            # Question and options
+            st.write("\n**" + st.session_state.current_question["question"] + "**")
+            selected = st.radio(
+                "Choose your answer:",
+                st.session_state.current_question["options"],
+                key="answer"
+            )
+            
+            # Check answer button
+            if st.button("Check Answer"):
+                correct_answer = st.session_state.current_question["options"][st.session_state.current_question["correct"]]
+                if selected == correct_answer:
+                    st.success("Correct! Well done! 🎉")
+                else:
+                    st.error(f"Not quite. The correct answer was: {correct_answer}")
+        else:
+            st.info("Generate a question to start practicing!")
         
     with col2:
         st.subheader("Audio")
         # Placeholder for audio player
-        st.info("Audio will appear here")
+        st.info("Audio will be available in future updates")
         
         st.subheader("Feedback")
-        # Placeholder for feedback
-        st.info("Feedback will appear here")
+        if st.session_state.current_question:
+            st.info("Practice speaking the dialogue out loud!")
+        else:
+            st.info("Feedback will appear here after answering")
 
 def main():
     render_header()
