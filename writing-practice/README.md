@@ -25,8 +25,14 @@ writing-practice/
 
 ## Setup Progress 
 
-1. **Initial Setup**
-   - Created project directory structure
+1. **Project Planning**
+   - Created Tech-Spec.md as the foundation for development
+   - Defined application architecture and components
+   - Outlined grading system and data flow
+   - Specified technical requirements and dependencies
+
+2. **Initial Setup**
+   - Created project directory structure based on Tech-Spec
    - Set up Python virtual environment
    - Created requirements.txt with necessary dependencies:
      - streamlit==1.32.0
@@ -35,18 +41,18 @@ writing-practice/
      - openai==1.12.0
      - requests==2.31.0
 
-2. **Directory Organization**
+3. **Directory Organization**
    - Implemented proper directory structure
    - Removed duplicate directories and unused files
    - Moved Streamlit configuration to correct location
 
-3. **Component Implementation**
+4. **Component Implementation**
    - Created setup_state component for sentence generation
    - Implemented practice_state for image upload
    - Added review_state for grading and feedback
    - Integrated state management in main.py
 
-4. **Services Implementation**
+5. **Services Implementation**
    - Implemented sentence generator with mock data
    - Set up grading system with MangaOCR integration
    - Prepared for future OpenAI API integration
@@ -112,8 +118,7 @@ writing-practice/
    - Added word_data.py service for word management
    - Created word_main.py entry point
 
-2. **Enhanced Documentation**
-   - Added Tech-Spec.md with detailed technical specifications
+2. **Documentation Updates**
    - Updated project structure to include word practice components
    - Added setup instructions for both sentence and word practice modes
 
