@@ -10,4 +10,7 @@ langchain>=0.1.9
 langchain-community>=0.0.24
 
 # Frontend dependencies
-streamlit>=1.32.0 
+streamlit>=1.32.0
+
+# Additional dependencies
+ffmpeg-python>=0.2.0  # For audio processing 

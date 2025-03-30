@@ -14,6 +14,7 @@ from backend.get_transcript import YouTubeTranscriptDownloader
 from backend.chat import JapaneseTutor
 from backend.structured_data import TranscriptStructurer
 from backend.question_store import QuestionStore
+from backend.audio_generator import AudioGenerator
 
 
 # Page config
@@ -30,6 +31,8 @@ if 'messages' not in st.session_state:
     st.session_state.messages = []
 if 'question_store' not in st.session_state:
     st.session_state.question_store = QuestionStore()
+if 'audio_generator' not in st.session_state:
+    st.session_state.audio_generator = AudioGenerator()
 
 def render_header():
     """Render the header section"""
@@ -372,6 +375,8 @@ def render_interactive_stage():
         st.session_state.current_question_set = None
     if 'practice_type' not in st.session_state:
         st.session_state.practice_type = None
+    if 'current_audio_path' not in st.session_state:
+        st.session_state.current_audio_path = None
     
     # Practice type selection with default to session state
     practice_type = st.selectbox(
@@ -407,7 +412,7 @@ def render_interactive_stage():
                         "scenario": get_scenario_for_topic(topic),
                         "dialogue": get_dialogue_for_topic(topic),
                         "question": "What should you say next?",
-                        "options": get_options_for_topic(topic),  # New helper function
+                        "options": get_options_for_topic(topic),
                         "correct": 2
                     }
                 }
@@ -421,6 +426,10 @@ def render_interactive_stage():
                 # Update the current question and question set
                 st.session_state.current_question = question_set["questions"]
                 st.session_state.current_question_set = question_set
+                
+                # Reset audio path when generating new question
+                st.session_state.current_audio_path = None
+                
                 st.success("Question generated and saved!")
                 st.rerun()
     else:
@@ -461,7 +470,28 @@ def render_interactive_stage():
         
     with col2:
         st.subheader("Audio")
-        st.info("Audio will be available in future updates")
+        if st.session_state.current_question_set:
+            # Generate audio button
+            if st.button("🔊 Generate Audio"):
+                with st.spinner("Generating audio..."):
+                    audio_path = st.session_state.audio_generator.generate_audio(
+                        st.session_state.current_question_set
+                    )
+                    if audio_path:
+                        st.session_state.current_audio_path = audio_path
+                        st.success("Audio generated successfully!")
+                        st.rerun()
+                    else:
+                        st.error("Failed to generate audio. Please try again.")
+            
+            # Display audio player if audio is available
+            if st.session_state.current_audio_path and os.path.exists(st.session_state.current_audio_path):
+                st.audio(st.session_state.current_audio_path)
+            elif st.session_state.current_audio_path:
+                st.error("Audio file not found. Please regenerate the audio.")
+                st.session_state.current_audio_path = None
+        else:
+            st.info("Generate a question to create audio")
         
         st.subheader("Feedback")
         if st.session_state.current_question:
