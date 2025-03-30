@@ -1,55 +1,61 @@
 # Japanese Writing Practice App
 
-A Streamlit application for practicing Japanese writing with automated grading and feedback using OCR technology.
+A Streamlit application for practicing Japanese writing, featuring both sentence and word practice modes.
+
+## Features
+
+- **Sentence Practice Mode**
+  - Practice writing Japanese sentences from English prompts
+  - OCR support for handwritten submissions
+  - AI-powered grading with S-Rank system
+  - Detailed feedback on accuracy, grammar, and natural usage
+
+- **Word Practice Mode**
+  - Practice writing Japanese words and readings
+  - Support for both typed input and handwritten submissions
+  - Immediate feedback on correctness
+  - Progress tracking for practiced words
+
+## Setup
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Set up your environment variables:
+   - Create `.streamlit/secrets.toml`
+   - Add your OpenAI API key:
+     ```toml
+     OPENAI_API_KEY = "your-api-key"
+     ```
+
+## Usage
+
+Run the application:
+```bash
+streamlit run src/main.py
+```
+
+For word practice mode:
+```bash
+streamlit run src/word_main.py
+```
 
 ## Project Structure
 
-```
-writing-practice/
-├── .streamlit/
-│   └── config.toml         # Streamlit configuration
-├── src/
-│   ├── components/
-│   │   ├── setup_state.py    # Initial state with sentence generation
-│   │   ├── practice_state.py # Practice state with image upload
-│   │   └── review_state.py   # Review state with grading
-│   ├── services/
-│   │   ├── sentence_generator.py # Generates practice sentences
-│   │   └── grading_system.py    # Handles OCR and grading
-│   └── main.py             # Main Streamlit application
-├── venv/                   # Python virtual environment
-├── requirements.txt        # Project dependencies
-├── Tech-Spec.md           # Technical specifications
-└── README.md              # This file
-```
+- `src/`
+  - `main.py` - Main sentence practice application
+  - `word_main.py` - Word practice application
+  - `components/` - UI state management components
+  - `services/` - Core functionality (grading, OCR, etc.)
+- `.streamlit/` - Streamlit configuration
+- `requirements.txt` - Project dependencies
+- `Tech-Spec.md` - Technical specifications
 
-## Setup Progress (March 30, 2025)
+## Contributing
 
-1. **Initial Setup**
-   - Created project directory structure
-   - Set up Python virtual environment
-   - Created requirements.txt with necessary dependencies:
-     - streamlit==1.32.0
-     - Pillow==10.2.0
-     - manga-ocr==0.1.14
-     - openai==1.12.0
-     - requests==2.31.0
-
-2. **Directory Organization**
-   - Implemented proper directory structure
-   - Removed duplicate directories and unused files
-   - Moved Streamlit configuration to correct location
-
-3. **Component Implementation**
-   - Created setup_state component for sentence generation
-   - Implemented practice_state for image upload
-   - Added review_state for grading and feedback
-   - Integrated state management in main.py
-
-4. **Services Implementation**
-   - Implemented sentence generator with mock data
-   - Set up grading system with MangaOCR integration
-   - Prepared for future OpenAI API integration
+See `Tech-Spec.md` for detailed technical specifications and contribution guidelines.
 
 ## Current Issues
 
