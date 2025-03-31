@@ -23,8 +23,8 @@ def main():
     if "app_state" not in st.session_state:
         st.session_state.app_state = "setup"
         
-    if "english_sentence" not in st.session_state:
-        st.session_state.english_sentence = None
+    if "english_text" not in st.session_state:
+        st.session_state.english_text = None
         
     if "transcribed_text" not in st.session_state:
         st.session_state.transcribed_text = None
@@ -57,8 +57,8 @@ def main():
                 
                 # If grade is C or D, add sentence to practice history
                 grade_line = st.session_state.grade.split('\n')[0]
-                if ('C' in grade_line or 'D' in grade_line) and st.session_state.english_sentence not in st.session_state.practice_history:
-                    st.session_state.practice_history.append(st.session_state.english_sentence)
+                if ('C' in grade_line or 'D' in grade_line) and st.session_state.english_text not in st.session_state.practice_history:
+                    st.session_state.practice_history.append(st.session_state.english_text)
         
         review_state()
 

@@ -1,0 +1,16 @@
+{
+  "study_activities": [
+    {
+      "name": "Typing Tutor",
+      "url": "http://localhost:8080",
+      "preview_url": "/assets/study_activities/typing-tutor.png",
+      "description": "Practice typing in Japanese"
+    },
+    {
+      "name": "Writing Practice",
+      "url": "http://localhost:8082",
+      "preview_url": "/assets/study_activities/writing-practice.png",
+      "description": "Practice writing Japanese characters and get instant feedback"
+    }
+  ]
+} 

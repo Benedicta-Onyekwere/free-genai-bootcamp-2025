@@ -26,7 +26,7 @@ writing-practice/
 ## Setup Progress 
 
 1. **Project Planning**
-   - Created Tech-Spec.md as the foundation for development
+   - Used created Tech-Spec.md as the foundation for development
    - Defined application architecture and components
    - Outlined grading system and data flow
    - Specified technical requirements and dependencies
@@ -38,7 +38,7 @@ writing-practice/
      - streamlit==1.32.0
      - Pillow==10.2.0
      - manga-ocr==0.1.14
-     - openai==1.12.0
+     - openai==0.28.0
      - requests==2.31.0
 
 3. **Directory Organization**
@@ -100,17 +100,19 @@ writing-practice/
    - Displays the English sentence to practice
    - Provides image upload for handwritten Japanese
    - Submit button for grading
+   [View Practice Interface](../../lang-portal/assets/study_activities/practice-interface.png)
 
 3. **Review State**
    - Shows original sentence
    - Displays OCR transcription
    - Shows translation and grade
    - Option to generate next question
+   ![View Review Interface](../../lang-portal/assets/review-interface.png)
 
-## New Features (March 30, 2025)
+## New Features
 
 1. **Word Practice Mode**
-   - Added word practice functionality
+   - Added single word practice functionality
    - Implemented word-specific components:
      - word_setup_state.py
      - word_practice_state.py
@@ -119,7 +121,7 @@ writing-practice/
    - Created word_main.py entry point
 
 2. **Documentation Updates**
-   - Updated project structure to include word practice components
+   - Updated project structure to include single word practice components
    - Added setup instructions for both sentence and word practice modes
 
 3. **Usage Instructions**
@@ -131,4 +133,59 @@ writing-practice/
    For word practice:
    ```bash
    streamlit run src/word_main.py
-   ``` 
+   ```
+
+## Enhanced Features and Integration
+
+1. **Practice Enhancement**
+   - Added retry functionality for failed words/sentences
+   - Implemented progress tracking for each practice item
+   - Added option to generate new items or retry failed ones
+   - Enhanced feedback system with detailed grammar and vocabulary suggestions
+   [View Practice Flow](../lang-portal/assets/study_activities/practice-flow.png)
+
+2. **Language Portal Integration**
+   - **Backend Connection**
+     ```python
+     # New API endpoint in Flask backend
+     @app.route('/api/writing-practice', methods=['POST'])
+     def submit_practice():
+         # Process writing practice submission
+         # Store in session history
+         # Return detailed feedback
+     ```
+   - Removed mock data from backend
+   - Added real-time session tracking
+   - Implemented study activity logging
+   - Using OpenAI API v0.28.0 for consistent response handling
+   [View Backend Integration](../lang-portal/assets/study_activities/backend-arch.png)
+
+3. **Frontend Updates**
+   - Added writing practice component to React frontend
+   - Implemented Streamlit launcher in portal
+   - Created session history display
+   - Added study progress tracking
+   [View Frontend Updates](../lang-portal/assets/study_activities/frontend-integration.png)
+
+4. **Running the Integrated System**
+   ```bash
+   # Start Flask backend (port 5000)
+   cd lang-portal-flask-react/backend
+   source venv/bin/activate
+   python app.py --port 5000
+
+   # Start React frontend (port 5175)
+   cd ../frontend
+   npm run dev -- --port 5175
+
+   # Start Streamlit app (port 8082)
+   cd ../../writing-practice
+   streamlit run src/main.py --server.port 8082
+   ```
+
+5. **Challenges Addressed**
+   - Fixed OpenAI API version compatibility issues
+   - Implemented consistent response handling
+   - Enhanced session state management between portal and Streamlit
+   - Improved OCR accuracy with pre-processing
+

@@ -3,7 +3,6 @@ from PIL import Image
 from manga_ocr import MangaOcr
 import openai
 import io
-from openai import OpenAI
 
 def grade_submission(image_file):
     """Process uploaded image and return grading results as per Tech-Spec:
@@ -92,8 +91,8 @@ Provide:
 
 def translate_text(text):
     try:
-        client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-        response = client.chat.completions.create(
+        openai.api_key = st.secrets["OPENAI_API_KEY"]
+        response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a Japanese to English translator."},
@@ -107,20 +106,18 @@ def translate_text(text):
 
 def grade_translation(original_text, translation):
     try:
-        client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+        openai.api_key = st.secrets["OPENAI_API_KEY"]
         
-        # First, get the expected Japanese translation of the English prompt
-        expected_response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a Japanese language teacher. Provide natural Japanese translations of English sentences."},
-                {"role": "user", "content": f"Translate this English sentence to natural Japanese: {st.session_state.english_sentence}"}
-            ]
-        )
-        expected_japanese = expected_response.choices[0].message.content.strip()
+        # Get the expected Japanese translation from session state
+        expected_japanese = st.session_state.expected_japanese
+        english_text = st.session_state.english_text
         
-        # Now grade the user's Japanese writing against both the English prompt and expected Japanese
-        response = client.chat.completions.create(
+        if not expected_japanese or not english_text:
+            st.error("Missing expected translation or English text.")
+            return None
+        
+        # Grade the user's Japanese writing against both the English prompt and expected Japanese
+        response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": """You are a Japanese language teacher grading writing practice.
@@ -138,7 +135,7 @@ def grade_translation(original_text, translation):
                 their mistakes and how to improve. Focus on explaining what parts of the meaning they missed or 
                 misunderstood, and suggest vocabulary or grammar patterns they should review."""},
                 {"role": "user", "content": f"""Grade this Japanese writing practice:
-                English Prompt: {st.session_state.english_sentence}
+                English Prompt: {english_text}
                 Expected Japanese: {expected_japanese}
                 Student's Japanese: {original_text}
                 Literal Translation of Student's Japanese: {translation}

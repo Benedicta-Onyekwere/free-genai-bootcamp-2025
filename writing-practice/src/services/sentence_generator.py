@@ -44,7 +44,10 @@ You can use the following vocabulary to construct a simple sentence:
 - simple times eg. tomorrow, today, yesterday"""
 
     try:
-        # TODO: Implement OpenAI API call with exact prompt
+        # Set the API key
+        openai.api_key = st.secrets["OPENAI_API_KEY"]
+        
+        # Make the API call
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
@@ -52,7 +55,7 @@ You can use the following vocabulary to construct a simple sentence:
                 {"role": "user", "content": prompt}
             ]
         )
-        return response.choices[0].message.content.strip()
+        return response.choices[0].message['content'].strip()
     except Exception as e:
         st.error(f"Error generating sentence: {str(e)}")
         # Fallback to template-based sentence if LLM fails

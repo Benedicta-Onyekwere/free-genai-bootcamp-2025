@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { studySessionsApi } from '../lib/api'
 
 interface Session {
   id: number
@@ -16,7 +17,9 @@ const Sessions = () => {
   const [sortField, setSortField] = useState<keyof Session>('startTime')
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
   const [currentPage, setCurrentPage] = useState(1)
-  const sessionsPerPage = 10
+  const [totalPages, setTotalPages] = useState(1)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     // Update time every second
@@ -28,37 +31,35 @@ const Sessions = () => {
     return () => clearInterval(timer)
   }, [])
 
-  // TODO: Replace with actual API call
+  // Fetch real session data
   useEffect(() => {
-    // Simulated session data
-    const mockSessions: Session[] = [
-      {
-        id: 1,
-        groupName: 'Core Verbs',
-        activityName: 'Adventure MUD',
-        startTime: '2024-03-20 14:30',
-        endTime: '2024-03-20 15:00',
-        reviewItemCount: 25,
-      },
-      {
-        id: 2,
-        groupName: 'Basic Nouns',
-        activityName: 'Typing Tutor',
-        startTime: '2024-03-19 10:15',
-        endTime: '2024-03-19 10:45',
-        reviewItemCount: 30,
-      },
-      {
-        id: 3,
-        groupName: 'Adjectives',
-        activityName: 'Adventure MUD',
-        startTime: '2024-03-18 16:00',
-        endTime: '2024-03-18 16:30',
-        reviewItemCount: 20,
-      },
-    ]
-    setSessions(mockSessions)
-  }, [])
+    const fetchSessions = async () => {
+      setIsLoading(true)
+      setError(null)
+      try {
+        console.log('Fetching sessions for page:', currentPage)
+        const response = await studySessionsApi.list({ page: currentPage })
+        console.log('API Response:', response.data)
+        
+        const sortedSessions = [...response.data.data].sort((a, b) => {
+          const aValue = a[sortField]
+          const bValue = b[sortField]
+          const direction = sortDirection === 'asc' ? 1 : -1
+          return aValue < bValue ? -1 * direction : aValue > bValue ? 1 * direction : 0
+        })
+        console.log('Sorted sessions:', sortedSessions)
+        
+        setSessions(sortedSessions)
+        setTotalPages(Math.ceil(response.data.total / response.data.per_page))
+      } catch (error) {
+        console.error('Error fetching sessions:', error)
+        setError('Failed to load study sessions. Please try again.')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchSessions()
+  }, [currentPage, sortField, sortDirection])
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -87,19 +88,6 @@ const Sessions = () => {
     }
   }
 
-  const sortedSessions = [...sessions].sort((a, b) => {
-    const aValue = a[sortField]
-    const bValue = b[sortField]
-    const direction = sortDirection === 'asc' ? 1 : -1
-    return aValue < bValue ? -1 * direction : aValue > bValue ? 1 * direction : 0
-  })
-
-  const totalPages = Math.ceil(sessions.length / sessionsPerPage)
-  const paginatedSessions = sortedSessions.slice(
-    (currentPage - 1) * sessionsPerPage,
-    currentPage * sessionsPerPage
-  )
-
   const SortIcon = ({ field }: { field: keyof Session }) => (
     <span className="ml-1">
       {sortField === field ? (
@@ -127,65 +115,73 @@ const Sessions = () => {
         {/* Sessions Table */}
         <div className="bg-card text-card-foreground rounded-lg shadow-md">
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th 
-                    className="px-6 py-3 text-left cursor-pointer hover:bg-muted/50"
-                    onClick={() => handleSort('activityName')}
-                  >
-                    Activity
-                    <SortIcon field="activityName" />
-                  </th>
-                  <th 
-                    className="px-6 py-3 text-left cursor-pointer hover:bg-muted/50"
-                    onClick={() => handleSort('groupName')}
-                  >
-                    Group
-                    <SortIcon field="groupName" />
-                  </th>
-                  <th 
-                    className="px-6 py-3 text-left cursor-pointer hover:bg-muted/50"
-                    onClick={() => handleSort('startTime')}
-                  >
-                    Start Time
-                    <SortIcon field="startTime" />
-                  </th>
-                  <th 
-                    className="px-6 py-3 text-left cursor-pointer hover:bg-muted/50"
-                    onClick={() => handleSort('endTime')}
-                  >
-                    End Time
-                    <SortIcon field="endTime" />
-                  </th>
-                  <th 
-                    className="px-6 py-3 text-left cursor-pointer hover:bg-muted/50"
-                    onClick={() => handleSort('reviewItemCount')}
-                  >
-                    Review Items
-                    <SortIcon field="reviewItemCount" />
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedSessions.map((session) => (
-                  <tr key={session.id} className="border-b hover:bg-muted/50">
-                    <td className="px-6 py-4">{session.activityName}</td>
-                    <td className="px-6 py-4">
-                      <Link
-                        to={`/groups/${session.id}`}
-                        className="text-primary hover:text-primary/80"
-                      >
-                        {session.groupName}
-                      </Link>
-                    </td>
-                    <td className="px-6 py-4">{session.startTime}</td>
-                    <td className="px-6 py-4">{session.endTime}</td>
-                    <td className="px-6 py-4">{session.reviewItemCount}</td>
+            {isLoading ? (
+              <div className="p-8 text-center">Loading sessions...</div>
+            ) : error ? (
+              <div className="p-8 text-center text-red-500">{error}</div>
+            ) : sessions.length === 0 ? (
+              <div className="p-8 text-center">No study sessions found</div>
+            ) : (
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th 
+                      className="px-6 py-3 text-left cursor-pointer hover:bg-muted/50"
+                      onClick={() => handleSort('activityName')}
+                    >
+                      Activity
+                      <SortIcon field="activityName" />
+                    </th>
+                    <th 
+                      className="px-6 py-3 text-left cursor-pointer hover:bg-muted/50"
+                      onClick={() => handleSort('groupName')}
+                    >
+                      Group
+                      <SortIcon field="groupName" />
+                    </th>
+                    <th 
+                      className="px-6 py-3 text-left cursor-pointer hover:bg-muted/50"
+                      onClick={() => handleSort('startTime')}
+                    >
+                      Start Time
+                      <SortIcon field="startTime" />
+                    </th>
+                    <th 
+                      className="px-6 py-3 text-left cursor-pointer hover:bg-muted/50"
+                      onClick={() => handleSort('endTime')}
+                    >
+                      End Time
+                      <SortIcon field="endTime" />
+                    </th>
+                    <th 
+                      className="px-6 py-3 text-left cursor-pointer hover:bg-muted/50"
+                      onClick={() => handleSort('reviewItemCount')}
+                    >
+                      Review Items
+                      <SortIcon field="reviewItemCount" />
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {sessions.map((session) => (
+                    <tr key={session.id} className="border-b hover:bg-muted/50">
+                      <td className="px-6 py-4">{session.activityName}</td>
+                      <td className="px-6 py-4">
+                        <Link
+                          to={`/groups/${session.id}`}
+                          className="text-primary hover:text-primary/80"
+                        >
+                          {session.groupName}
+                        </Link>
+                      </td>
+                      <td className="px-6 py-4">{session.startTime}</td>
+                      <td className="px-6 py-4">{session.endTime}</td>
+                      <td className="px-6 py-4">{session.reviewItemCount}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
 
           {/* Pagination */}
@@ -193,7 +189,7 @@ const Sessions = () => {
             <button
               className="px-4 py-2 text-sm font-medium rounded-md bg-primary text-white hover:bg-primary/80 disabled:opacity-50"
               onClick={() => setCurrentPage(currentPage - 1)}
-              disabled={currentPage === 1}
+              disabled={currentPage === 1 || isLoading}
             >
               Previous
             </button>
@@ -203,7 +199,7 @@ const Sessions = () => {
             <button
               className="px-4 py-2 text-sm font-medium rounded-md bg-primary text-white hover:bg-primary/80 disabled:opacity-50"
               onClick={() => setCurrentPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
+              disabled={currentPage === totalPages || isLoading}
             >
               Next
             </button>

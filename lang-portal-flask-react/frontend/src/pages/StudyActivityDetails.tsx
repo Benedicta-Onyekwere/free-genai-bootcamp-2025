@@ -30,7 +30,7 @@ export default function StudyActivityDetails() {
       description:
         'An interactive text adventure game that helps you learn Japanese through immersive storytelling and real-world scenarios.',
       thumbnail: '/thumbnails/adventure-mud.jpg',
-      launchUrl: 'http://localhost:8081',
+      launchUrl: 'http://localhost:8501',
     })
 
     setSessions([

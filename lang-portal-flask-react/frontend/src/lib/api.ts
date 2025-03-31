@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -10,6 +10,13 @@ export const api = axios.create({
 });
 
 // API interfaces
+export interface StudyActivity {
+  id: number;
+  type: string;
+  data: any;
+  timestamp: string;
+}
+
 export interface LastStudySession {
   id: number;
   group_id: number;
@@ -30,7 +37,39 @@ export interface QuickStats {
   study_streak_days: number;
 }
 
+export interface StudySessionResponse {
+  data: {
+    id: number;
+    groupName: string;
+    activityName: string;
+    startTime: string;
+    endTime: string;
+    reviewItemCount: number;
+  }[];
+  total: number;
+  page: number;
+  per_page: number;
+}
+
 // API functions
+export const studyActivitiesApi = {
+  list: () => 
+    api.get<StudyActivity[]>('/study-activities'),
+  
+  create: (data: any) => 
+    api.post<StudyActivity>('/study-activities', data),
+
+  // Specific endpoint for writing practice
+  submitWritingPractice: (data: {
+    english_sentence: string;
+    transcribed_text: string;
+    translation: string;
+    grade: string;
+    feedback: string;
+  }) => 
+    api.post<StudyActivity>('/writing-practice', data),
+};
+
 export const dashboardApi = {
   getLastStudySession: () => 
     api.get<LastStudySession>('/dashboard/last_study_session'),
@@ -43,17 +82,17 @@ export const dashboardApi = {
 };
 
 export const studySessionsApi = {
-  list: (page = 1) => 
-    api.get('/study_sessions', { params: { page } }),
+  list: (params: { page: number }) => 
+    api.get<StudySessionResponse>('/study-sessions', { params }),
   
   get: (id: number) => 
-    api.get(`/study_sessions/${id}`),
+    api.get(`/study-sessions/${id}`),
   
   create: (data: { group_id: number; study_activity_id: number }) => 
-    api.post('/study_sessions', data),
+    api.post('/study-sessions', data),
   
   addWordReview: (sessionId: number, wordId: number, correct: boolean) => 
-    api.post(`/study_sessions/${sessionId}/words/${wordId}/review`, { correct }),
+    api.post(`/study-sessions/${sessionId}/words/${wordId}/review`, { correct }),
 };
 
 export const wordsApi = {

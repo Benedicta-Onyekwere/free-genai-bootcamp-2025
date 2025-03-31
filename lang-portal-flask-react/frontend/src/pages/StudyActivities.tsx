@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { studyActivitiesApi } from '../lib/api';
 
 interface Activity {
   id: number;
@@ -12,7 +13,20 @@ interface Activity {
   category: 'Reading' | 'Writing' | 'Listening' | 'Speaking' | 'Grammar' | 'Vocabulary';
 }
 
+// Writing practice activity
+const writingPracticeActivity: Activity = {
+  id: 999, // Special ID for writing practice
+  title: 'Japanese Writing Practice',
+  description: 'Practice writing Japanese sentences with AI-powered feedback and grading.',
+  imageUrl: 'https://placehold.co/600x400/10B981/FFFFFF/png?text=Writing+Practice',
+  skills: ['Writing', 'Grammar'],
+  difficulty: 'Intermediate',
+  estimatedTime: '15-20 min',
+  category: 'Writing'
+};
+
 const activities: Activity[] = [
+  writingPracticeActivity,
   {
     id: 1,
     title: 'Adventure MUD',
@@ -82,6 +96,20 @@ const StudyActivities = () => {
   const [selectedCategory, setSelectedCategory] = useState<typeof categories[number]>('All');
   const [selectedDifficulty, setSelectedDifficulty] = useState<typeof difficulties[number]>('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [studyHistory, setStudyHistory] = useState<any[]>([]);
+
+  // Fetch study history on component mount
+  useEffect(() => {
+    const fetchStudyHistory = async () => {
+      try {
+        const response = await studyActivitiesApi.list();
+        setStudyHistory(response.data);
+      } catch (error) {
+        console.error('Error fetching study history:', error);
+      }
+    };
+    fetchStudyHistory();
+  }, []);
 
   const filteredActivities = activities.filter(activity => {
     const matchesCategory = selectedCategory === 'All' || activity.category === selectedCategory;
@@ -129,7 +157,37 @@ const StudyActivities = () => {
         <p className="text-muted-foreground mt-2">Choose an activity to practice your Japanese skills</p>
       </div>
 
-      {/* Current Date & Time Card */}
+      {/* Study History Card */}
+      {studyHistory.length > 0 && (
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
+          <h2 className="text-xl font-semibold mb-4">Recent Study Activities</h2>
+          <div className="space-y-4">
+            {studyHistory.slice(0, 3).map((activity: any) => (
+              <div key={activity.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <div>
+                  <p className="font-medium">{activity.type === 'writing_practice' ? 'Writing Practice' : activity.type}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {new Date(activity.timestamp).toLocaleString()}
+                  </p>
+                </div>
+                {activity.type === 'writing_practice' && (
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    activity.data.grade === 'S' ? 'bg-purple-100 text-purple-800' :
+                    activity.data.grade === 'A' ? 'bg-green-100 text-green-800' :
+                    activity.data.grade === 'B' ? 'bg-blue-100 text-blue-800' :
+                    activity.data.grade === 'C' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-red-100 text-red-800'
+                  }`}>
+                    Grade: {activity.data.grade}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Available Activities Card */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
         <div className="flex items-center justify-between">
           <div>
@@ -209,7 +267,7 @@ const StudyActivities = () => {
                     View Details
                   </Link>
                   <a
-                    href={`http://localhost:8081?group_id=${activity.id}`}
+                    href={activity.id === 999 ? 'http://localhost:8082' : `http://localhost:8081?group_id=${activity.id}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-1 px-4 py-2 text-sm font-medium text-center rounded-md bg-primary text-white hover:bg-primary/90 transition-colors"
