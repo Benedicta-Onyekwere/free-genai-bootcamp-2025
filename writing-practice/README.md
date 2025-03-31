@@ -100,14 +100,14 @@ writing-practice/
    - Displays the English sentence to practice
    - Provides image upload for handwritten Japanese
    - Submit button for grading
-   [View Practice Interface](../../lang-portal/assets/study_activities/practice-interface.png)
+   [View Practice Interface](../lang-portal/assets/study_activities/practice-interface.png)
 
 3. **Review State**
    - Shows original sentence
    - Displays OCR transcription
    - Shows translation and grade
    - Option to generate next question
-   ![View Review Interface](../../lang-portal/assets/review-interface.png)
+   [View Review Interface](../lang-portal/assets/study_activities/review-interface.png)
 
 ## New Features
 
