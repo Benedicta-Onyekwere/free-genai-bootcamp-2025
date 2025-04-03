@@ -10,7 +10,10 @@ This directory contains the configuration for running an Ollama server using Doc
 
 2. **Set Environment Variables**
    ```bash
-   HOST_IP=<your-local-ip>  # Your machine's local IP address (see "Getting Your IP" below)
+   # Get your local IP using:
+   # macOS: ipconfig getifaddr en0 (WiFi) or en1 (Ethernet)
+   # Linux: echo $(hostname -I | awk '{print $1}')
+   HOST_IP=<your-local-ip>
    NO_PROXY=localhost
    LLM_ENDPOINT_PORT=8008
    LLM_MODEL_ID="llama3.2:1b"
@@ -24,24 +27,8 @@ This directory contains the configuration for running an Ollama server using Doc
 4. **Verify Installation**
    - Server should be accessible at `http://localhost:8008`
    - First-time setup will download the Ollama image (~2.6GB)
+   - Models are removed when container is destroyed (unless using volume mount)
    - Check server logs for successful startup
-
-## Getting Your IP
-
-### macOS
-```sh
-ipconfig getifaddr en0  # For Wi-Fi
-# or
-ipconfig getifaddr en1  # For Ethernet
-```
-
-### Linux
-```sh
-sudo apt install net-tools
-ifconfig
-# or
-echo $(hostname -I | awk '{print $1}')
-```
 
 ## Using the Ollama API
 
@@ -68,7 +55,7 @@ For full API documentation, visit: https://github.com/ollama/ollama/blob/main/do
 
 ## Configuration
 
-### Docker Compose File
+### Docker Configuration
 ```yaml
 version: '3'
 services:
@@ -79,6 +66,9 @@ services:
       - "${LLM_ENDPOINT_PORT}:11434"
     environment:
       - NO_PROXY=${NO_PROXY}
+    # Optional: Persist models between restarts
+    volumes:
+      - ./models:/root/.ollama/models
     networks:
       - default
 
@@ -87,33 +77,6 @@ networks:
     driver: bridge
 ```
 
-### Advanced Configuration
-To persist models between container restarts:
-```yaml
-services:
-  ollama-server:
-    # ... other configuration ...
-    volumes:
-      - ./models:/root/.ollama/models
-```
-
-## System Information
-
-### Server Details
-- Version: 0.6.1
-- Memory: 7.1 GB available out of 7.7 GB total
-- Mode: CPU (no GPU acceleration)
-- Internal Port: 11434
-- External Port: 8008 (configurable)
-
-### Technical Notes
-- Bridge network mode enables host machine access to Ollama API
-- Models must be explicitly downloaded using `/api/pull`
-- Default context length: 2048
-- Request queue limit: 512
-- New SSH key generated on first run
-- Models are removed when container is destroyed (unless using volume mount)
-
 ## Troubleshooting
 
 - If you see YAML syntax errors, check file indentation
@@ -121,3 +84,45 @@ services:
 - Ensure ports are not in use
 - Check server logs for startup issues
 - Verify environment variables are set correctly
+
+## Mega Service Development
+
+### Chat Service Implementation
+The `mega-service-new` directory contains a microservice implementation using the `comps` framework:
+
+1. **Service Structure**
+   ```
+   mega-service-new/
+   ├── app/
+   │   ├── requirements.txt  # Python dependencies
+   │   └── chat.py          # Main service implementation
+   ├── Dockerfile
+   └── docker-compose.yml
+   ```
+
+2. **Running the Service**
+   ```bash
+   cd mega-service-new
+   docker compose up
+   ```
+   
+   Configuration:
+   - Service runs on port 8888
+   - Volume mounting enabled for hot reloading
+   - Automatic restart policy enabled
+
+3. **Testing the Endpoint**
+   ```bash
+   curl -X POST http://localhost:8888/james-is-great \
+     -H "Content-Type: application/json" \
+     -d '{"messages": [], "model": "test-model", "max_tokens": 100}'
+   ```
+
+4. **Development Challenges & Solutions**
+   - **Challenge**: 404 errors when accessing the endpoint
+     - Solution: Properly implemented the `@register_microservice` decorator pattern
+     - Ensured correct endpoint registration with FastAPI through the comps framework
+
+   - **Challenge**: Service registration and startup issues
+     - Solution: Corrected the service initialization in `chat.py`
+     - Used the correct service name in `opea_microservices` dictionary
