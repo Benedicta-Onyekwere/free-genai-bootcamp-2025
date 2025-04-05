@@ -1,0 +1,6 @@
+#! /bin/bash
+
+curl http://localhost:9088/v1/audio/speech \
+ -XPOST -d '{"input":"Because there'\''s so much snow outside, I think I won'\''t go to the office today and what I'\''ll do instead is stay indoors and make myself some hamburgers and pizza. Does anyone like that idea?"}' \
+ -H 'Content-Type: application/json' \
+ --output audio/andrew-ref-10s.wav 

@@ -1,0 +1,62 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    git \
+    libsndfile1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create and activate virtual environment
+RUN python -m venv /app/.venv
+ENV PATH="/app/.venv/bin:$PATH"
+
+# Upgrade pip and install basic tools
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+
+# Install ML dependencies in specific order to avoid conflicts
+RUN pip install --no-cache-dir numpy==1.23.5 && \
+    python -c "import numpy"
+
+RUN pip install --no-cache-dir 'pybind11>=2.12.0' && \
+    pip install --no-cache-dir llvmlite==0.39.1
+
+RUN pip install --no-cache-dir numba==0.56.4 && \
+    python -c "import numba"
+
+RUN pip install --no-cache-dir scipy==1.10.1 && \
+    python -c "import scipy"
+
+RUN pip install --no-cache-dir audioread==3.0.1 && \
+    python -c "import audioread"
+
+RUN pip install --no-cache-dir soundfile==0.12.1 && \
+    python -c "import soundfile"
+
+RUN pip install --no-cache-dir resampy==0.4.2 && \
+    python -c "import resampy"
+
+RUN pip install --no-cache-dir librosa==0.9.2 && \
+    python -c "import librosa"
+
+RUN pip install --no-cache-dir jax==0.4.18 jaxlib==0.4.18 && \
+    python -c "import jax"
+
+RUN pip install --no-cache-dir torch==2.0.1 torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cpu && \
+    python -c "import torch; import torchaudio"
+
+# Clone and setup GPT-SoVITS
+WORKDIR /app/gpt-sovits
+RUN rm -rf ./* && git clone https://github.com/RVC-Boss/GPT-SoVITS.git . && \
+    python -c "import numpy; import numba; import librosa; import torch"
+
+# Setup service
+WORKDIR /app/service
+
+# Install service dependencies
+RUN pip install --no-cache-dir fastapi==0.109.2 uvicorn==0.27.1
+
+# Run the service
+CMD ["uvicorn", "gptsovits:app", "--host", "0.0.0.0", "--port", "8000", "--reload"] 

@@ -1,20 +1,11 @@
-# Use Python 3.9 as base image
 FROM python:3.10-slim
 
-# Set working directory
+# Copy service files
+COPY app /app
 WORKDIR /app
 
-# Copy requirements first to leverage Docker cache
-COPY /app/requirements.txt .
-
-# Install dependencies
+# Install service requirements
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application
-COPY /app/. .
-
-# Expose the port the app runs on
-EXPOSE 8888
-
-# Command to run the application
+# Run the service
 CMD ["python", "chat.py"]
