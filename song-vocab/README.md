@@ -148,7 +148,7 @@ curl -X POST http://localhost:8000/api/agent \
   -d '{"message_request": "song title and artist"}'
 ```
 
-![Song Vocabulary Service Screenshot](../lang-portal/assets/song-vocab-screenshot.png)
+[View Screenshot](../lang-portal/assets/song-vocab-screenshot.png)
 
 ## Development
 
