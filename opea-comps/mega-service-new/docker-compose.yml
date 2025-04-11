@@ -1,106 +1,58 @@
 version: '3.8'
 
-# Previous mega-service configuration
-# services:
-#   mega-service:
-#     build: .
-#     ports:
-#       - "${MEGA_SERVICE_PORT:-8888}:8888"
-#     volumes:
-#       - ./app:/app
-#     restart: unless-stopped
-#     networks:
-#       - megaservice_network
-# 
-#   speecht5-service:
-#     image: ${REGISTRY:-opea}/speecht5:${TAG:-latest}
-#     platform: linux/amd64
-#     container_name: speecht5-service
-#     ports:
-#       - ${SPEECHT5_PORT:-7055}:7055
-#     ipc: host
-#     environment:
-#       no_proxy: ${no_proxy}
-#       http_proxy: ${http_proxy}
-#       https_proxy: ${https_proxy}
-#     restart: unless-stopped
-#     healthcheck:
-#       test: ["CMD", "curl", "-f", "http://localhost:7055/health"]
-#     networks:
-#       - megaservice_network
-# 
-#   gptsovits-service:
-#     build:
-#       context: .
-#       dockerfile: Dockerfile.gptsovits
-#     platform: linux/amd64
-#     container_name: gpt-sovits-service
-#     ports:
-#       - "${GPT_SOVITS_PORT:-8889}:8889"
-#     volumes:
-#       - ./app:/app/service
-#       - ./audio:/app/audio
-#     environment:
-#       no_proxy: ${no_proxy}
-#       http_proxy: ${http_proxy}
-#       https_proxy: ${https_proxy}
-#       GPT_SOVITS_PORT: ${GPT_SOVITS_PORT:-8889}
-#     restart: unless-stopped
-#     healthcheck:
-#       test: ["CMD", "curl", "-f", "http://localhost:8889/gpt-sovits"]
-#       interval: 10s
-#       timeout: 6s
-#       retries: 18
-#     networks:
-#       - megaservice_network
-# 
-#   tts-gptsovits:
-#     image: ${REGISTRY:-opea}/tts:${TAG:-latest}
-#     platform: linux/amd64
-#     container_name: tts-gptsovits-service
-#     ports:
-#       - ${TTS_PORT:-9088}:9088
-#     ipc: host
-#     environment:
-#       no_proxy: ${no_proxy}
-#       http_proxy: ${http_proxy}
-#       https_proxy: ${https_proxy}
-#     depends_on:
-#       - gptsovits-service
-#     healthcheck:
-#       test: ["CMD", "curl", "-f", "http://localhost:9088/health"]
-#       interval: 10s
-#       timeout: 6s
-#       retries: 18
-#     networks:
-#       - megaservice_network
-# 
-# networks:
-#   megaservice_network:
-#     driver: bridge
-
-# New configuration for standalone gptsovits service
 services:
   gptsovits-service:
     build:
-      context: .
-      dockerfile: Dockerfile.gptsovits
-    platform: linux/amd64
-    container_name: gptsovits-service
+      context: ..
+      dockerfile: mega-service-new/Dockerfile.gptsovits
+      args:
+        - HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_HUB_TOKEN}
+    container_name: projects-gptsovits-service
+    working_dir: /app/service
     volumes:
       - ./app:/app/service
-      - ../opea-comps:/app/opea-comps
+      - ./models:/app/models
       - ./audio:/app/audio
+      - ./output:/app/output
     ports:
       - "8000:8000"
     environment:
-      - PYTHONPATH=/app/service:/app/opea-comps
-      - no_proxy=${no_proxy}
-      - http_proxy=${http_proxy}
-      - https_proxy=${https_proxy}
-    restart: unless-stopped
+      - PYTHONPATH=/app/service:/app/GPT_SoVITS:/app
+      - HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_HUB_TOKEN}
+    env_file:
+      - .env
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 10s
-      timeout: 6s
-      retries: 18 
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  tts-gptsovits:
+    build:
+      context: ..
+      dockerfile: mega-service-new/Dockerfile.gptsovits
+      args:
+        - HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_HUB_TOKEN}
+    container_name: projects-tts-gptsovits
+    working_dir: /app/service
+    volumes:
+      - ./app:/app/service
+      - ./models:/app/models
+      - ./audio:/app/audio
+      - ./output:/app/output
+    ports:
+      - "8001:8000"
+    environment:
+      - PYTHONPATH=/app/service:/app/GPT_SoVITS:/app
+      - HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_HUB_TOKEN}
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped 

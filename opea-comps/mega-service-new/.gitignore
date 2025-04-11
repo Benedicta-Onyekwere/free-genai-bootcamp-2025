@@ -1,19 +1,39 @@
+# Environment and secrets
 .env
+*.env
+.env.*
+secrets.json
+config.json
 
 # Audio files
 *.wav
 *.mp3
+*.ogg
+*.flac
 audio/*
+output/*.wav
+output/*.mp3
+output/*.ogg
+output/*.flac
 
-# Test outputs
-output-*.wav
-output-*.mp3
+# Model files
+models/*.pth
+models/*.ckpt
+models/*.pt
+models/*.bin
+models/*.onnx
 
-# Python
+# Cache and temporary files
+tts_cache/*
+*.cache
+*.tmp
+*.temp
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
+
+# Python
 .Python
 build/
 develop-eggs/
@@ -29,4 +49,16 @@ var/
 wheels/
 *.egg-info/
 .installed.cfg
-*.egg 
+*.egg
+
+# Logs
+*.log
+logs/
+log/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store 

@@ -1,0 +1,39 @@
+FROM python:3.11-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    libsndfile1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create a non-root user
+RUN useradd -m -s /bin/bash user
+
+# Set up the working directory
+WORKDIR /app
+
+# Copy the TTS service code and comps directory
+COPY mega-service-new/tts/src /app/tts/src
+COPY comps /app/comps
+
+# Install Python dependencies with retry logic
+RUN pip install --no-cache-dir \
+    fastapi \
+    uvicorn \
+    requests \
+    numpy \
+    librosa \
+    soundfile && \
+    pip install --no-cache-dir --timeout=100 \
+    torch==2.1.0 torchaudio==2.1.0 --index-url https://download.pytorch.org/whl/cpu
+
+# Set permissions
+RUN chown -R user:user /app
+
+# Switch to non-root user
+USER user
+
+# Set environment variables
+ENV PYTHONPATH=/app
+
+# The actual service will be started by the entrypoint in docker-compose.yml 
