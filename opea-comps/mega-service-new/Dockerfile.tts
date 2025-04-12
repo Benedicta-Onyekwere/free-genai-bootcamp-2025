@@ -1,39 +1,50 @@
-FROM python:3.11-slim
+FROM python:3.10-slim
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    curl \
+    build-essential \
+    python3-dev \
+    python3-pip \
+    ffmpeg \
     libsndfile1 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a non-root user
-RUN useradd -m -s /bin/bash user
-
-# Set up the working directory
+# Set working directory
 WORKDIR /app
 
-# Copy the TTS service code and comps directory
-COPY mega-service-new/tts/src /app/tts/src
+# Create and activate virtual environment
+RUN python -m venv /app/.venv
+ENV PATH="/app/.venv/bin:$PATH"
+
+# Upgrade pip and install basic tools
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+
+# Install opea-comps
+COPY setup.py /app/setup.py
 COPY comps /app/comps
+RUN pip install -e .
 
-# Install Python dependencies with retry logic
+# Install required Python packages
 RUN pip install --no-cache-dir \
-    fastapi \
-    uvicorn \
-    requests \
-    numpy \
-    librosa \
-    soundfile && \
-    pip install --no-cache-dir --timeout=100 \
-    torch==2.1.0 torchaudio==2.1.0 --index-url https://download.pytorch.org/whl/cpu
+    numpy==1.23.5 \
+    soundfile==0.12.1 \
+    fastapi==0.68.1 \
+    uvicorn==0.15.0
 
-# Set permissions
-RUN chown -R user:user /app
+# Create necessary directories
+RUN mkdir -p /app/audio /app/output && \
+    chmod -R 777 /app/audio /app/output
 
-# Switch to non-root user
-USER user
+# Copy service code
+COPY mega-service-new/app /app/service
 
-# Set environment variables
-ENV PYTHONPATH=/app
+# Set working directory for service
+WORKDIR /app/service
 
-# The actual service will be started by the entrypoint in docker-compose.yml 
+# Start the service
+CMD ["uvicorn", "gptsovits:app", "--host", "0.0.0.0", "--port", "8000"] 
