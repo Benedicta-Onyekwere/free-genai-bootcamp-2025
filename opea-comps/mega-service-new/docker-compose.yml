@@ -5,22 +5,16 @@ services:
     build:
       context: ..
       dockerfile: mega-service-new/Dockerfile.gptsovits
-      args:
-        - HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_HUB_TOKEN}
     container_name: projects-gptsovits-service
     working_dir: /app/service
     volumes:
       - ./app:/app/service
-      - ./models:/app/models
       - ./audio:/app/audio
       - ./output:/app/output
     ports:
       - "8000:8000"
     environment:
-      - PYTHONPATH=/app/service:/app/GPT_SoVITS:/app
-      - HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_HUB_TOKEN}
-    env_file:
-      - .env
+      - PYTHONPATH=/app/service:/app
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -33,22 +27,16 @@ services:
     build:
       context: ..
       dockerfile: mega-service-new/Dockerfile.gptsovits
-      args:
-        - HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_HUB_TOKEN}
     container_name: projects-tts-gptsovits
     working_dir: /app/service
     volumes:
       - ./app:/app/service
-      - ./models:/app/models
       - ./audio:/app/audio
       - ./output:/app/output
     ports:
       - "8001:8000"
     environment:
-      - PYTHONPATH=/app/service:/app/GPT_SoVITS:/app
-      - HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_HUB_TOKEN}
-    env_file:
-      - .env
+      - PYTHONPATH=/app/service:/app
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
